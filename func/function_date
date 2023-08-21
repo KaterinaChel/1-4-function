@@ -1,0 +1,24 @@
+create or replace function dm.get_amount(input_date DATE) 
+returns table ( 
+    oper_date date, 
+    max_credit numeric(10,2), 
+    min_credit numeric(10,2), 
+    max_debit numeric(10,2), 
+    min_debit numeric(10,2)
+) 
+as $$ 
+begin 
+    return query 
+    select 
+        ds.ft_posting_f.oper_date, 
+        max(credit_amount)::numeric(10,2) as max_credit, 
+        min(credit_amount)::numeric(10,2) as min_credit, 
+        max(debet_amount)::numeric(10,2) as max_debit, 
+        min(debet_amount)::numeric(10,2) as min_debit 
+    from 
+        ds.ft_posting_f
+    where 
+        ds.ft_posting_f.oper_date = input_date
+	group by ds.ft_posting_f.oper_date; 
+end; 
+$$ language plpgsql;
